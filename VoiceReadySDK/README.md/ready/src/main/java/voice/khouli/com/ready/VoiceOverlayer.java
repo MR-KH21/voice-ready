@@ -1,9 +1,3 @@
-/**
- *  Copyright (c) 2014-2016 Qordoba. All rights reserved.
- *
- *  Qordoba SDK for Android
- *
- */
 package voice.khouli.com.ready;
 
 import android.app.Activity;
