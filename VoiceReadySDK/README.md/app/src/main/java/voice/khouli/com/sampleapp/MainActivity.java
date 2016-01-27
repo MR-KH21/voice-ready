@@ -1,6 +1,7 @@
 package voice.khouli.com.sampleapp;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +10,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Random;
+
+import voice.khouli.com.ready.VoiceAction;
+import voice.khouli.com.ready.VoiceReady;
 
 public class MainActivity extends AppCompatActivity {
 	protected static final int REQUEST_OK = 1;
@@ -20,24 +25,35 @@ public class MainActivity extends AppCompatActivity {
 		findViewById(R.id.showVoice).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-				i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
-				try {
-					startActivityForResult(i, REQUEST_OK);
-				} catch (Exception e) {
-					Toast.makeText(MainActivity.this, "Error initializing speech to text engine.", Toast.LENGTH_LONG).show();
-				}
+				Toast.makeText(v.getContext() , "you called me ;)",Toast.LENGTH_LONG).show();
+			}
+		});
+
+		findViewById(R.id.toto).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(v.getContext() , "More what exactly :P",Toast.LENGTH_LONG).show();
+			}
+		});
+
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		VoiceReady.addCustomAction("change background", new VoiceAction() {
+			@Override
+			public void doAction() {
+				Random rnd = new Random();
+				int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+				findViewById(R.id.root).setBackgroundColor(color);
 			}
 		});
 	}
 
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode==REQUEST_OK  && resultCode==RESULT_OK) {
-			ArrayList<String> thingsYouSaid = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-			((TextView)findViewById(R.id.res)).setText(thingsYouSaid.get(0));
-		}
+		VoiceReady.onActivityResult(requestCode,resultCode,data);
 	}
 }
