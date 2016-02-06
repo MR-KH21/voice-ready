@@ -9,5 +9,6 @@ public class Application extends android.app.Application {
     public void onCreate() {
         super.onCreate();
 		VoiceReady.init(this,VoiceReady.VOICE_TRIGGER_FLOATING_BUTTON);
+		//SpeechRecognitionUtil.recognizeSpeechDirectly(this,);
     }
 }

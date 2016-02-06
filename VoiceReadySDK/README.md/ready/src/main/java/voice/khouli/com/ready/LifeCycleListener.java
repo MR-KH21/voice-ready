@@ -26,18 +26,24 @@ public class LifeCycleListener implements Application.ActivityLifecycleCallbacks
 	}
 
 	@Override
-	public void onActivityResumed(Activity activity) {
+	public void onActivityResumed(final Activity activity) {
 		activityActionsManager.scanActions();
+
+		ShakeEventListener shakeEventListener = new ShakeEventListener(activity, new ShakeEventListener.ShakeListener() {
+			@Override
+			public void onShake() {
+				triggerRecognizerIntent(activity);
+			}
+
+			@Override
+			public void onLittleShake() {
+
+			}
+		});
 		VoiceOverlayer overlayer = new VoiceOverlayer(activity, new VoiceOverlayer.VoiceIconListener() {
 			@Override
 			public void onVoiceIconClicked(Activity activity) {
-				Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-				i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
-				try {
-					activity.startActivityForResult(i, REQUEST_OK);
-				} catch (Exception e) {
-					Toast.makeText(activity, "Error initializing speech to text engine.", Toast.LENGTH_LONG).show();
-				}
+				triggerRecognizerIntent(activity);
 			}
 		});
 		activity.addContentView(overlayer,new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -74,5 +80,15 @@ public class LifeCycleListener implements Application.ActivityLifecycleCallbacks
 
 	public void addVoiceAction(final String action ,final VoiceAction voiceAction){
 		activityActionsManager.addVoiceAction(action,voiceAction);
+	}
+
+	private void triggerRecognizerIntent(final Activity activity){
+		Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+		i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
+		try {
+			activity.startActivityForResult(i, REQUEST_OK);
+		} catch (Exception e) {
+			Toast.makeText(activity, "Error initializing speech to text engine.", Toast.LENGTH_LONG).show();
+		}
 	}
 }

@@ -2,11 +2,13 @@ package voice.khouli.com.sampleapp;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -16,16 +18,17 @@ import voice.khouli.com.ready.VoiceAction;
 import voice.khouli.com.ready.VoiceReady;
 
 public class MainActivity extends AppCompatActivity {
-	protected static final int REQUEST_OK = 1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		findViewById(R.id.showVoice).setTag(VoiceReady.VOICE_TAG,"hidden tag,you can listen");
+
 		findViewById(R.id.showVoice).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(v.getContext() , "you called me ;)",Toast.LENGTH_LONG).show();
+				Toast.makeText(MainActivity.this, "Ok I'm Listening XD ", Toast.LENGTH_SHORT).show();
 			}
 		});
 

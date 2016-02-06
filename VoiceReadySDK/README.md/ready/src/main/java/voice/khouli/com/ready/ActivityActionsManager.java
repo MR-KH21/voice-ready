@@ -9,6 +9,7 @@ import android.widget.TextView;
 import java.util.HashMap;
 
 public class ActivityActionsManager {
+
 	final Activity mCurrentActivity;
 	final private HashMap<String,VoiceAction> textActions = new HashMap<>();
 	public ActivityActionsManager(final Activity activity){
@@ -17,6 +18,22 @@ public class ActivityActionsManager {
 	}
 	private void scanViews(final View view) {
 		//support tags later
+		if (view.getTag(VoiceReady.VOICE_TAG) != null){
+			try {
+				String tagTxt = (String) view.getTag(VoiceReady.VOICE_TAG);
+				String[] tagStrings = tagTxt.split(",");
+				for (String action: tagStrings) {
+					textActions.put(action, new VoiceAction() {
+						@Override
+						public void doAction() {
+							view.callOnClick();
+						}
+					});
+				}
+			}catch (Exception ex){
+				ex.printStackTrace();
+			}
+		}
 		if (view instanceof TextView) {
 			final TextView textView = (TextView) view;
 			if (textView.getText() != null) {
