@@ -7,56 +7,145 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 public class ShakeEventListener implements SensorEventListener {
-	public final static int SHAKE_LIMIT = 15;
-	public final static int LITTLE_SHAKE_LIMIT = 5;
 
-	private SensorManager mSensorManager;
-	private float mAccel = 0.00f;
-	private float mAccelCurrent = SensorManager.GRAVITY_EARTH;
-	private float mAccelLast = SensorManager.GRAVITY_EARTH;
-
-	private ShakeListener listener;
-
-	public interface ShakeListener {
-		public void onShake();
-		public void onLittleShake();
+	private final Activity activity;
+	public ShakeEventListener (final Activity mCurrentActivity, final OnShakeListener listener){
+		activity = mCurrentActivity;
+		setOnShakeListener(listener);
 	}
 
-	public ShakeEventListener(ShakeListener l) {
-		Activity a = (Activity) l;
-		mSensorManager = (SensorManager) a.getSystemService(Context.SENSOR_SERVICE);
-		listener = l;
-		registerListener();
+
+	public void registerShakeEventListener(){
+		SensorManager mSensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
+		mSensorManager.registerListener(this,
+				mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+				SensorManager.SENSOR_DELAY_UI);
+
 	}
 
-	public ShakeEventListener(Activity a, ShakeListener l) {
-		mSensorManager = (SensorManager) a.getSystemService(Context.SENSOR_SERVICE);
-		listener = l;
-		registerListener();
-	}
 
-	public void registerListener() {
-		mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-	}
-
-	public void unregisterListener() {
+	public void unregisterShakeEventListener(){
+		SensorManager mSensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
 		mSensorManager.unregisterListener(this);
 	}
 
-	public void onSensorChanged(SensorEvent se) {
-		float x = se.values[0];
-		float y = se.values[1];
-		float z = se.values[2];
-		mAccelLast = mAccelCurrent;
-		mAccelCurrent = (float) Math.sqrt(x*x + y*y + z*z);
-		float delta = mAccelCurrent - mAccelLast;
-		mAccel = mAccel * 0.9f + delta;
-		if(mAccel > SHAKE_LIMIT)
-			listener.onShake();
-		else if(mAccel > LITTLE_SHAKE_LIMIT)
-			listener.onLittleShake();
+	/** Minimum movement force to consider. */
+	private static final int MIN_FORCE = 10;
+
+	/**
+	 * Minimum times in a shake gesture that the direction of movement needs to
+	 * change.
+	 */
+	private static final int MIN_DIRECTION_CHANGE = 3;
+
+	/** Maximum pause between movements. */
+	private static final int MAX_PAUSE_BETHWEEN_DIRECTION_CHANGE = 400;
+
+	/** Maximum allowed time for shake gesture. */
+	private static final int MAX_TOTAL_DURATION_OF_SHAKE = 600;
+
+	/** Time when the gesture started. */
+	private long mFirstDirectionChangeTime = 0;
+
+	/** Time when the last movement started. */
+	private long mLastDirectionChangeTime;
+
+	/** How many movements are considered so far. */
+	private int mDirectionChangeCount = 0;
+
+	/** The last x position. */
+	private float lastX = 0;
+
+	/** The last y position. */
+	private float lastY = 0;
+
+	/** The last z position. */
+	private float lastZ = 0;
+
+
+	/** OnShakeListener that is called when shake is detected. */
+	private OnShakeListener mShakeListener;
+
+	/**
+	 * Interface for shake gesture.
+	 */
+	public interface OnShakeListener {
+
+		/**
+		 * Called when shake gesture is detected.
+		 */
+		void onShake();
 	}
 
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-}
+	public void setOnShakeListener(OnShakeListener listener) {
+		mShakeListener = listener;
+	}
 
+	@Override
+	public void onSensorChanged(SensorEvent se) {
+		// get sensor data
+		float x = se.values[SensorManager.DATA_X];
+		float y = se.values[SensorManager.DATA_Y];
+		float z = se.values[SensorManager.DATA_Z];
+
+		// calculate movement
+		float totalMovement = Math.abs(x + y + z - lastX - lastY - lastZ);
+
+		if (totalMovement > MIN_FORCE) {
+
+			// get time
+			long now = System.currentTimeMillis();
+
+			// store first movement time
+			if (mFirstDirectionChangeTime == 0) {
+				mFirstDirectionChangeTime = now;
+				mLastDirectionChangeTime = now;
+			}
+
+			// check if the last movement was not long ago
+			long lastChangeWasAgo = now - mLastDirectionChangeTime;
+			if (lastChangeWasAgo < MAX_PAUSE_BETHWEEN_DIRECTION_CHANGE) {
+
+				// store movement data
+				mLastDirectionChangeTime = now;
+				mDirectionChangeCount++;
+
+				// store last sensor data
+				lastX = x;
+				lastY = y;
+				lastZ = z;
+
+				// check how many movements are so far
+				if (mDirectionChangeCount >= MIN_DIRECTION_CHANGE) {
+
+					// check total duration
+					long totalDuration = now - mFirstDirectionChangeTime;
+					if (totalDuration < MAX_TOTAL_DURATION_OF_SHAKE) {
+							mShakeListener.onShake();
+							resetShakeParameters();
+					}
+				}
+
+			} else {
+				resetShakeParameters();
+			}
+		}
+	}
+
+	/**
+	 * Resets the shake parameters to their default values.
+	 */
+	private void resetShakeParameters() {
+		mFirstDirectionChangeTime = 0;
+		mDirectionChangeCount = 0;
+		mLastDirectionChangeTime = 0;
+		lastX = 0;
+		lastY = 0;
+		lastZ = 0;
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+	}
+
+}

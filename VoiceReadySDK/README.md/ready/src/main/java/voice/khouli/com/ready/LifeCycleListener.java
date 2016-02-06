@@ -2,7 +2,10 @@ package voice.khouli.com.ready;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.view.ViewGroup;
@@ -14,6 +17,9 @@ import java.util.ArrayList;
 public class LifeCycleListener implements Application.ActivityLifecycleCallbacks{
 	protected static final int REQUEST_OK = 1;
 	ActivityActionsManager activityActionsManager;
+	ShakeEventListener mSensorListener;
+	private static final int SHAKE_COUNT_RESET_TIME_MS = 5000;
+	private long mShakeTimestamp;
 
 	@Override
 	public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
@@ -25,21 +31,22 @@ public class LifeCycleListener implements Application.ActivityLifecycleCallbacks
 
 	}
 
+
 	@Override
 	public void onActivityResumed(final Activity activity) {
 		activityActionsManager.scanActions();
-
-		ShakeEventListener shakeEventListener = new ShakeEventListener(activity, new ShakeEventListener.ShakeListener() {
+		ShakeEventListener mSensorListener = new ShakeEventListener(activity, new ShakeEventListener.OnShakeListener() {
 			@Override
 			public void onShake() {
-				triggerRecognizerIntent(activity);
-			}
-
-			@Override
-			public void onLittleShake() {
-
+				if (System.currentTimeMillis() - mShakeTimestamp > SHAKE_COUNT_RESET_TIME_MS) {
+					triggerRecognizerIntent(activity);
+					mShakeTimestamp = System.currentTimeMillis();
+				}
 			}
 		});
+
+		mSensorListener.registerShakeEventListener();
+
 		VoiceOverlayer overlayer = new VoiceOverlayer(activity, new VoiceOverlayer.VoiceIconListener() {
 			@Override
 			public void onVoiceIconClicked(Activity activity) {
@@ -51,7 +58,9 @@ public class LifeCycleListener implements Application.ActivityLifecycleCallbacks
 
 	@Override
 	public void onActivityPaused(Activity activity) {
-
+		if (mSensorListener != null) {
+			mSensorListener.unregisterShakeEventListener();
+		}
 	}
 
 	@Override
