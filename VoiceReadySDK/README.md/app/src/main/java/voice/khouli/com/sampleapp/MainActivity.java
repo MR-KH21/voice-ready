@@ -1,5 +1,6 @@
 package voice.khouli.com.sampleapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.speech.RecognitionListener;
@@ -23,12 +24,12 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		findViewById(R.id.showVoice).setTag(VoiceReady.VOICE_TAG,"hidden tag,you can listen");
 
+		findViewById(R.id.showVoice).setTag(VoiceReady.VOICE_TAG,"hidden tag,you can listen");
 		findViewById(R.id.showVoice).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(MainActivity.this, "Ok I'm Listening XD ", Toast.LENGTH_SHORT).show();
+				Toast.makeText(v.getContext(), "hello man",Toast.LENGTH_LONG).show();
 			}
 		});
 
@@ -38,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
 				Toast.makeText(v.getContext() , "More what exactly :P",Toast.LENGTH_LONG).show();
 			}
 		});
-
 	}
 
 	@Override

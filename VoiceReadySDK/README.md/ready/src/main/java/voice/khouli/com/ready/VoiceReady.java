@@ -27,7 +27,6 @@ public class VoiceReady {
 
 	}
 
-
 	public static void onActivityResult(int requestCode, int resultCode, Intent data){
 		voiceLifeCycleListener.onActivityResult(requestCode,resultCode,data);
 	}

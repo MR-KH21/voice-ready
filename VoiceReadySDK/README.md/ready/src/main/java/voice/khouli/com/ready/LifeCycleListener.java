@@ -2,14 +2,10 @@ package voice.khouli.com.ready;
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -21,6 +17,8 @@ public class LifeCycleListener implements Application.ActivityLifecycleCallbacks
 	private static final int SHAKE_COUNT_RESET_TIME_MS = 5000;
 	private long mShakeTimestamp;
 
+
+
 	@Override
 	public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
 		activityActionsManager = new ActivityActionsManager(activity);
@@ -31,7 +29,6 @@ public class LifeCycleListener implements Application.ActivityLifecycleCallbacks
 
 	}
 
-
 	@Override
 	public void onActivityResumed(final Activity activity) {
 		activityActionsManager.scanActions();
@@ -39,7 +36,17 @@ public class LifeCycleListener implements Application.ActivityLifecycleCallbacks
 			@Override
 			public void onShake() {
 				if (System.currentTimeMillis() - mShakeTimestamp > SHAKE_COUNT_RESET_TIME_MS) {
-					triggerRecognizerIntent(activity);
+					triggerVoiceRecognizer(activity, new SpeechRecognitionUtil.RecognitionActions() {
+						@Override
+						public void onResults(ArrayList<String> voiceActions) {
+							try {
+								String voiceAction = voiceActions.get(0);
+								activityActionsManager.callAction(voiceAction.toLowerCase());
+							}catch (Exception ex){
+								ex.printStackTrace();
+							}
+						}
+					});
 					mShakeTimestamp = System.currentTimeMillis();
 				}
 			}
@@ -50,7 +57,7 @@ public class LifeCycleListener implements Application.ActivityLifecycleCallbacks
 		VoiceOverlayer overlayer = new VoiceOverlayer(activity, new VoiceOverlayer.VoiceIconListener() {
 			@Override
 			public void onVoiceIconClicked(Activity activity) {
-				triggerRecognizerIntent(activity);
+				triggerVoiceRecognizer(activity);
 			}
 		});
 		activity.addContentView(overlayer,new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -80,9 +87,9 @@ public class LifeCycleListener implements Application.ActivityLifecycleCallbacks
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data){
 		if (requestCode==REQUEST_OK  && resultCode == Activity.RESULT_OK) {
-			ArrayList<String> voidAction = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+			ArrayList<String> voiceActions = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 			//to do write the filter to remove common calls like "click on ..."
-			String voiceAction = voidAction.get(0);
+			String voiceAction = voiceActions.get(0);
 			activityActionsManager.callAction(voiceAction.toLowerCase());
 		}
 	}
@@ -91,13 +98,24 @@ public class LifeCycleListener implements Application.ActivityLifecycleCallbacks
 		activityActionsManager.addVoiceAction(action,voiceAction);
 	}
 
-	private void triggerRecognizerIntent(final Activity activity){
+
+	private void triggerVoiceRecognizer(final Activity activity ){
 		Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 		i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
 		try {
 			activity.startActivityForResult(i, REQUEST_OK);
+			//SpeechRecognitionUtil.recognizeSpeechDirectly(activity);
 		} catch (Exception e) {
 			Toast.makeText(activity, "Error initializing speech to text engine.", Toast.LENGTH_LONG).show();
 		}
 	}
+
+	private void triggerVoiceRecognizer(final Activity activity , SpeechRecognitionUtil.RecognitionActions actions){
+		try {
+			SpeechRecognitionUtil.recognizeSpeechDirectly(activity , actions);
+		} catch (Exception e) {
+			Toast.makeText(activity, "Error initializing speech to text engine.", Toast.LENGTH_LONG).show();
+		}
+	}
+
 }
