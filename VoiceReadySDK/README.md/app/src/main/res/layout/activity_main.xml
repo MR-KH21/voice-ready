@@ -11,14 +11,6 @@
     tools:context="voice.khouli.com.sampleapp.MainActivity"
     android:id="@+id/root"
     >
-
-    <TextView
-        android:layout_centerInParent="true"
-        android:id="@+id/res"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"/>
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,6 +24,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/toto"
         android:text="Add More"
+		android:layout_centerHorizontal="true"
         android:layout_below="@+id/showVoice"
         />
 

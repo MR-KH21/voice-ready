@@ -92,18 +92,6 @@ public class VoiceReadyLifeCycleListener implements Application.ActivityLifecycl
 		activityActionsManager.addVoiceAction(action,voiceAction);
 	}
 
-
-	private void triggerVoiceRecognizer(final Activity activity ){
-		Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-		i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
-		try {
-			activity.startActivityForResult(i, REQUEST_OK);
-			//SpeechRecognitionUtil.recognizeSpeechDirectly(activity);
-		} catch (Exception e) {
-			Toast.makeText(activity, "Error initializing speech to text engine.", Toast.LENGTH_LONG).show();
-		}
-	}
-
 	private void triggerVoiceRecognizer(final Activity activity , SpeechRecognitionUtil.RecognitionActions actions){
 		try {
 			SpeechRecognitionUtil.recognizeSpeechDirectly(activity , actions);
@@ -112,13 +100,21 @@ public class VoiceReadyLifeCycleListener implements Application.ActivityLifecycl
 		}
 	}
 
-
-
 	private void addVoiceOverlayerButton(final Activity activity){
 		VoiceOverlayer overlayer = new VoiceOverlayer(activity, iconResourceID, new VoiceOverlayer.VoiceIconListener() {
 			@Override
 			public void onVoiceIconClicked(Activity activity) {
-				triggerVoiceRecognizer(activity);
+				triggerVoiceRecognizer(activity, new SpeechRecognitionUtil.RecognitionActions() {
+					@Override
+					public void onResults(ArrayList<String> voiceActions) {
+						try {
+							String voiceAction = voiceActions.get(0);
+							activityActionsManager.callAction(voiceAction.toLowerCase());
+						}catch (Exception ex){
+							ex.printStackTrace();
+						}
+					}
+				});
 			}
 		});
 		activity.addContentView(overlayer,new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -144,7 +140,6 @@ public class VoiceReadyLifeCycleListener implements Application.ActivityLifecycl
 				}
 			}
 		});
-
 		mSensorListener.registerShakeEventListener();
 	}
 
