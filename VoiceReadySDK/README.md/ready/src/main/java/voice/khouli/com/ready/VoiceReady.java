@@ -14,7 +14,12 @@ public class VoiceReady {
 	public static void init(final Application application , int voiceTrigger){
 		voiceVoiceReadyLifeCycleListener = new VoiceReadyLifeCycleListener(voiceTrigger);
 		application.registerActivityLifecycleCallbacks(voiceVoiceReadyLifeCycleListener);
+	}
 
+
+	public static void init(final Application application , int voiceTrigger, int micResourceDrawable){
+		voiceVoiceReadyLifeCycleListener = new VoiceReadyLifeCycleListener(voiceTrigger,micResourceDrawable);
+		application.registerActivityLifecycleCallbacks(voiceVoiceReadyLifeCycleListener);
 	}
 
 	public static void onActivityResult(int requestCode, int resultCode, Intent data){

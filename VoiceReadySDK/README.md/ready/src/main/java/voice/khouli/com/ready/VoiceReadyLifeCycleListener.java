@@ -19,9 +19,14 @@ public class VoiceReadyLifeCycleListener implements Application.ActivityLifecycl
 	private static final int SHAKE_COUNT_RESET_TIME_MS = 5000;
 	private long mShakeTimestamp;
 	private int triggerMode = 0;
-
+	private int iconResourceID = 0 ;
 	public VoiceReadyLifeCycleListener(int mode){
 		triggerMode = mode;
+	}
+
+	public VoiceReadyLifeCycleListener(int mode , int iconResourceID){
+		triggerMode = mode;
+		this.iconResourceID = iconResourceID;
 	}
 
 	@Override
@@ -39,13 +44,13 @@ public class VoiceReadyLifeCycleListener implements Application.ActivityLifecycl
 		activityActionsManager.scanActions();
 		switch (triggerMode){
 			case VoiceReady.VOICE_TRIGGER_FLOATING_BUTTON:
-				addVoiceOverlayerButton(activity,null);
+				addVoiceOverlayerButton(activity);
 				break;
 			case VoiceReady.VOICE_TRIGGER_SHAKING:
 				addShakeListener(activity);
 				break;
 			case VoiceReady.VOICE_TRIGGER_ALL:
-				addVoiceOverlayerButton(activity,null);
+				addVoiceOverlayerButton(activity);
 				addShakeListener(activity);
 				break;
 
@@ -109,8 +114,8 @@ public class VoiceReadyLifeCycleListener implements Application.ActivityLifecycl
 
 
 
-	private void addVoiceOverlayerButton(final Activity activity ,final Bitmap icon){
-		VoiceOverlayer overlayer = new VoiceOverlayer(activity, new VoiceOverlayer.VoiceIconListener() {
+	private void addVoiceOverlayerButton(final Activity activity){
+		VoiceOverlayer overlayer = new VoiceOverlayer(activity, iconResourceID, new VoiceOverlayer.VoiceIconListener() {
 			@Override
 			public void onVoiceIconClicked(Activity activity) {
 				triggerVoiceRecognizer(activity);
