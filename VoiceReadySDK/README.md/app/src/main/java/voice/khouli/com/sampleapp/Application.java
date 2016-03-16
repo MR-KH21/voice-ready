@@ -8,6 +8,6 @@ public class Application extends android.app.Application {
     @Override
     public void onCreate() {
         super.onCreate();
-		VoiceReady.init(this,VoiceReady.VOICE_TRIGGER_FLOATING_BUTTON, R.drawable.icon_mic);
+		VoiceReady.init(this,VoiceReady.VOICE_TRIGGER_ALL, R.drawable.icon_mic);
     }
 }

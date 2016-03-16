@@ -3,6 +3,8 @@ package voice.khouli.com.ready;
 import android.app.Application;
 import android.content.Intent;
 
+import voice.khouli.com.ready.listeners.VoiceReadyLifeCycleListener;
+
 public class VoiceReady {
 	public static final int VOICE_TAG = R.drawable.mic + 4 ;
 	static boolean listening;

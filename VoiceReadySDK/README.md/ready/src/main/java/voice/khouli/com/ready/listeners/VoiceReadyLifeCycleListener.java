@@ -1,20 +1,25 @@
-package voice.khouli.com.ready;
+package voice.khouli.com.ready.listeners;
 
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.view.ViewGroup;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import voice.khouli.com.ready.ActivityActionsManager;
+import voice.khouli.com.ready.SpeechRecognitionUtil;
+import voice.khouli.com.ready.VoiceAction;
+import voice.khouli.com.ready.VoiceOverlayer;
+import voice.khouli.com.ready.VoiceReady;
+import voice.khouli.com.ready.listeners.ShakeEventListener;
+
 public class VoiceReadyLifeCycleListener implements Application.ActivityLifecycleCallbacks{
 	protected static final int REQUEST_OK = 1;
-	ActivityActionsManager activityActionsManager;
+	ActivityActionsManager activityActionsManager = null;
 	ShakeEventListener mSensorListener;
 	private static final int SHAKE_COUNT_RESET_TIME_MS = 5000;
 	private long mShakeTimestamp;
@@ -76,7 +81,7 @@ public class VoiceReadyLifeCycleListener implements Application.ActivityLifecycl
 
 	@Override
 	public void onActivityDestroyed(Activity activity) {
-
+		activityActionsManager = null;
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data){

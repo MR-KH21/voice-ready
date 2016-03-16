@@ -14,8 +14,9 @@ public class ActivityActionsManager {
 	final private HashMap<String,VoiceAction> textActions = new HashMap<>();
 	public ActivityActionsManager(final Activity activity){
 		mCurrentActivity = activity;
-
 	}
+
+
 	private void scanViews(final View view) {
 		//support tags later
 		if (view.getTag(VoiceReady.VOICE_TAG) != null){
@@ -63,8 +64,6 @@ public class ActivityActionsManager {
 			textActions.get(action).doAction();
 		}
 	}
-
-
 
 	public void addVoiceAction(String action , VoiceAction voiceAction){
 		if (textActions != null){
