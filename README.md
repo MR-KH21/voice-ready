@@ -6,7 +6,7 @@ A library that will allow the voice interaction with app user by simply scanning
 
 # Usage
 
-1) Download the aar file provided in the master branch and imported in your android studio (File -> New Module -> import Jar/AAR package).
+1) Download the aar file provided in the master branch and imported in your android studio (File -> New Module -> import Jar/AAR package) or checkout from the project from the dev branch.
 <br>
 2) In your App add a module depedency to the previous imported module.
 <br>
